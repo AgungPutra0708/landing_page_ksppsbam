@@ -1,0 +1,173 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Pendapatan extends CI_Controller {
+	public function index(){
+		$data['title'] = 'Posting Pendapatan';
+		$data['user'] = $this->db->get_where('t_petugas', ['kode_petugas' => $this->session->userdata('kodes')])->row_array();
+		$data['setoran'] = "Pilih Tanggal Dahulu";
+		$data['tanggal'] = "0";
+		$data['petugas'] = $this->db->get_where('t_petugas', ['jabatan' => "ao"])->result_array();
+		$data['cabang'] = $this->db->get('t_cabang')->result_array();
+		$data['cabangs'] = "0";
+
+
+		// reset($data['setoran']);
+
+		if ($this->input->post('cariTanggal') == "Cari" && $this->input->post('pilihTanggal')!=""  && $this->input->post('cabang')=="" && $this->input->post('petugas')=="") {
+			$data['rempug'] = $this->db->select('*')
+										->from("t_rempug")
+										->join('t_setoran', 't_rempug.kode_rempug = t_setoran.kode_rempug')
+										->join('t_kota', 't_rempug.kode_kota = t_kota.kode_kota')
+										->join('t_kecamatan', 't_rempug.kode_kec = t_kecamatan.kode_kec')
+										->join('t_kelurahan', 't_rempug.kode_kel = t_kelurahan.kode_kel')
+										->where('t_setoran.tanggal_setoran',$this->input->post('pilihTanggal'))
+										->get()->result_array();
+			$data['setoran'] = $this->db->select('*')
+										->from("t_setoran")
+										->join('t_rempug', 't_setoran.kode_rempug = t_rempug.kode_rempug')
+										->where('t_setoran.tanggal_setoran',$this->input->post('pilihTanggal'))
+										->where('t_setoran.status',"0")
+										->order_by('kode_petugas')
+										->get()->result_array();
+			$data['tanggal'] = $this->input->post('pilihTanggal');
+			$data['cabang'] = $this->input->post('cabang');
+
+		}elseif ($this->input->post('cariTanggal') == "Cari" && $this->input->post('pilihTanggal')!="" && $this->input->post('cabang')=="" && $this->input->post('petugas')!=""){
+			$data['rempug'] = $this->db->select('*')
+										->from("t_rempug")
+										->join('t_setoran', 't_rempug.kode_rempug = t_setoran.kode_rempug')
+										->join('t_kota', 't_rempug.kode_kota = t_kota.kode_kota')
+										->join('t_kecamatan', 't_rempug.kode_kec = t_kecamatan.kode_kec')
+										->join('t_kelurahan', 't_rempug.kode_kel = t_kelurahan.kode_kel')
+										->join('t_cabang', 't_rempug.kode_cabang = t_cabang.id_cabang')
+										->where('t_setoran.tanggal_setoran',$this->input->post('pilihTanggal'))
+										->where('t_setoran.kode_petugas',$this->input->post('petugas'))
+										->get()->result_array();
+			$data['setoran'] = $this->db->select('*')->from("t_setoran")->join('t_rempug', 't_setoran.kode_rempug = t_rempug.kode_rempug')->join('t_cabang', 't_setoran.kode_cabang = t_cabang.id_cabang')->where('t_setoran.status',"0")->where('t_setoran.tanggal_setoran',$this->input->post('pilihTanggal'))->where('t_setoran.kode_petugas',$this->input->post('petugas'))->order_by('kode_petugas')->get()->result_array();
+			$data['tanggal'] = $this->input->post('pilihTanggal');
+			$data['cabangs'] = $this->input->post('cabang');
+
+		}elseif ($this->input->post('cariTanggal') == "Cari" && $this->input->post('pilihTanggal')!="" && $this->input->post('cabang')!="" && $this->input->post('petugas')==""){
+			$data['rempug'] = $this->db->select('*')
+										->from("t_rempug")
+										->join('t_setoran', 't_rempug.kode_rempug = t_setoran.kode_rempug')
+										->join('t_kota', 't_rempug.kode_kota = t_kota.kode_kota')
+										->join('t_kecamatan', 't_rempug.kode_kec = t_kecamatan.kode_kec')
+										->join('t_kelurahan', 't_rempug.kode_kel = t_kelurahan.kode_kel')
+										->join('t_cabang', 't_rempug.kode_cabang = t_cabang.id_cabang')
+										->where('t_setoran.tanggal_setoran',$this->input->post('pilihTanggal'))
+										->where('t_setoran.kode_cabang',$this->input->post('cabang'))
+										->get()->result_array();
+			$data['setoran'] = $this->db->select('*')
+										->from("t_setoran")
+										->join('t_rempug', 't_setoran.kode_rempug = t_rempug.kode_rempug')
+										->join('t_cabang', 't_setoran.kode_cabang = t_cabang.id_cabang')
+										->where('t_setoran.tanggal_setoran',$this->input->post('pilihTanggal'))
+										->where('t_setoran.kode_cabang',$this->input->post('cabang'))
+										->where('t_rempug.kode_cabang',$this->input->post('cabang'))
+										->where('t_setoran.status',"0")
+										->order_by('kode_petugas')
+										->get()->result_array();
+			$data['tanggal'] = $this->input->post('pilihTanggal');
+			$data['cabangs'] = $this->input->post('cabang');
+
+		}elseif ($this->input->post('cariTanggal') == "Cari" && $this->input->post('pilihTanggal')!="" && $this->input->post('cabang')!="" && $this->input->post('petugas')!=""){
+			$data['rempug'] = $this->db->select('*')->from("t_rempug")->join('t_setoran', 't_rempug.kode_rempug = t_setoran.kode_rempug')->join('t_kota', 't_rempug.kode_kota = t_kota.kode_kota')->join('t_kecamatan', 't_rempug.kode_kec = t_kecamatan.kode_kec')->join('t_kelurahan', 't_rempug.kode_kel = t_kelurahan.kode_kel')->join('t_cabang', 't_rempug.kode_cabang = t_cabang.id_cabang')->where('t_setoran.tanggal_setoran',$this->input->post('pilihTanggal'))->where('t_setoran.kode_cabang',$this->input->post('cabang'))->where('t_setoran.kode_petugas',$this->input->post('petugas'))->get()->result_array();
+			$data['setoran'] = $this->db->select('*')->from("t_setoran")->join('t_rempug', 't_setoran.kode_rempug = t_rempug.kode_rempug')->where('t_setoran.tanggal_setoran',$this->input->post('pilihTanggal'))->join('t_cabang', 't_setoran.kode_cabang = t_cabang.id_cabang')->where('t_setoran.status',"0")->where('t_setoran.kode_cabang',$this->input->post('cabang'))->where('t_setoran.kode_petugas',$this->input->post('petugas'))->order_by('kode_petugas')->get()->result_array();
+			$data['tanggal'] = $this->input->post('pilihTanggal');
+			$data['cabangs'] = $this->input->post('cabang');
+
+		}elseif ($this->input->post('cariTanggal') == "Cari" && $this->input->post('pilihTanggal')==""){
+			$data['setoran'] = "Pilih Tanggal Dahulu";
+		}
+
+		$this->load->view('template/header', $data);
+		$this->load->view('template/sidebar', $data);
+		$this->load->view('template/topbar', $data);
+		$this->load->view('pendapatan/index', $data);
+		$this->load->view('template/footer');
+	}
+
+	public function edit($id)
+    {
+    	$data['title'] = 'Posting Pendapatan';
+		$data['user'] = $this->db->get_where('t_petugas', ['kode_petugas' => $this->session->userdata('kodes')])->row_array();
+		$Pecah = explode("-", $id );
+		for ( $i = 0; $i < count( $Pecah ); $i++ ) {
+			$Pecah[$i];
+		}
+        $data['detailSetoran'] = $this->db->select('*')
+        									->from("t_detail_setoran")
+        									->join('t_setoran', 't_detail_setoran.id_setoran = t_setoran.id_setoran')
+        									->join('t_anggota', 't_detail_setoran.kode_anggota = t_anggota.kode_anggota')
+        									->where('t_detail_setoran.id_setoran', $Pecah[1])
+        									->where('t_anggota.kode_cabang', $Pecah[0])
+        									->get()->result_array();
+        $data['idCabang'] = $Pecah[0];
+        $data['idSetoran'] = $Pecah[1];
+        $this->load->view('template/header', $data);
+		$this->load->view('template/sidebar', $data);
+		$this->load->view('template/topbar', $data);
+		$this->load->view('pendapatan/edit', $data);
+		$this->load->view('template/footer');
+    }
+    public function updateTransaksi()
+    {
+    	$nm = $this->input->post('nomer');
+    	$result = array();
+    	foreach($nm AS $key => $val){
+    	$result[] = array(
+    			'id_detail_setoran' => str_replace(".", "",$_POST['id_detail_setoran'][$key]),
+				'banyak_setor' => str_replace(".", "",$_POST['banyak_setor'][$key]),
+				'angsuran_pokok' => str_replace(".", "",$_POST['jumlah_angsuran'][$key]),
+				'angsuran_margin' => str_replace(".", "",$_POST['jumlah_margin'][$key]),
+				'wajib_4%' => str_replace(".", "",$_POST['wajib_4'][$key]),
+				'wajib_minggon' => str_replace(".", "",$_POST['minggon'][$key]),
+				'kebajikan' => str_replace(".", "",$_POST['kebajikan'][$key]),
+				'sukarela' => str_replace(".", "",$_POST['sukarela'][$key])
+	     	);
+    	}
+		$this->db->update_batch('t_detail_setoran', $result, 'id_detail_setoran');
+		$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Data Berhasil Diubah</div>');
+		redirect('pendapatan');
+    }
+
+    public function posting(){
+    	$data['title'] = 'Posting Pendapatan';
+		$data['user'] = $this->db->get_where('t_petugas', ['kode_petugas' => $this->session->userdata('kodes')])->row_array();
+    	$data['postingSetoran'] = $this->db->select('*')
+    										->from("t_detail_setoran")
+    										->join('t_setoran', 't_detail_setoran.id_setoran = t_setoran.id_setoran')
+    										->join('t_anggota', 't_detail_setoran.kode_anggota = t_anggota.kode_anggota')
+    										->join('t_cabang', 't_anggota.kode_cabang = t_cabang.id_cabang')
+    										->where('t_setoran.tanggal_setoran',$this->input->post('tanggalCetak'))
+    										->where('t_setoran.status',"0")
+    										->where('t_detail_setoran.kode_cabang',$this->input->post('cabangCetak'))
+    										->where('t_anggota.kode_cabang',$this->input->post('cabangCetak'))
+    										->get()->result_array();
+    	$data['pinjaman'] = $this->db->select('*')->from("t_jenis_pinjam")->get()->result_array();
+    	$data['pinjam_anggota'] = $this->db->select('*')->from("t_pinjam")->get()->result_array();
+
+    	$this->load->view('template/header', $data);
+		$this->load->view('template/sidebar', $data);
+		$this->load->view('template/topbar', $data);
+		$this->load->view('pendapatan/proses', $data);
+		$this->load->view('template/footer');
+    }
+    
+    public function deletePendapatan()
+    {
+    	$id = $this->input->post('id_setoran');
+		$Pecah = explode("-", $id );
+		for ( $i = 0; $i < count( $Pecah ); $i++ ) {
+			$Pecah[$i];
+		}
+		$this->db->where('id_setoran', $Pecah[1]);
+		$this->db->where('kode_cabang', $Pecah[0]);
+		$this->db->delete('t_setoran');
+		$this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Data Berhasil Dihapus</div>');
+		redirect('pendapatan');
+    }
+}
+?>
